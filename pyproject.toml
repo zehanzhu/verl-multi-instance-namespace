@@ -87,7 +87,7 @@ cupy-cu130 = ["cupy-cuda13x==14.0.1"]
 # ---- inference backends ----------------------------------------------------
 vllm = [
     "verl[verl-core]",
-    "torch==2.13.0",
+    "torch==2.14.1",
     "torchvision==0.28.0",
     "torchaudio==2.11.0",
     # PyPI's 0.29.0 wheel is already a cu130 / torch-2.13 abi3 build, so it needs
@@ -102,7 +102,7 @@ vllm = [
 
 sglang = [
     "verl[verl-core]",
-    "torch==2.13.0",
+    "torch==2.14.1",
     "torchvision==0.28.0",
     "torchaudio==2.11.0",
     # sglang + sglang-kernel come from PyPI; upstream's 0.5.20 wheels are cu130 /
@@ -137,7 +137,7 @@ fsdp = [
     "verl[verl-core]",
     "verl[flash-attn-cu130torch213]",
     "verl[cupy-cu130]",
-    "torch==2.13.0",
+    "torch==2.14.1",
     "torchvision==0.28.0",
     "torchaudio==2.11.0",
     "liger-kernel>=0.8.2",
@@ -154,7 +154,7 @@ megatron = [
     "verl[verl-core]",
     "verl[flash-attn-cu130torch213]",
     "verl[cupy-cu130]",
-    "torch==2.13.0",
+    "torch==2.14.1",
     "torchvision==0.28.0",
     "torchaudio==2.11.0",
     "nvidia-mathdx",
@@ -215,7 +215,7 @@ torchtitan = [
 # CI / unit tests / dev sanity. No GPU runtime.
 cpu = [
     "verl[verl-core]",
-    "torch==2.13.0",
+    "torch==2.14.1",
     "torchvision==0.28.0",
     "torchaudio==2.11.0",
     "transformers==5.12.1",
