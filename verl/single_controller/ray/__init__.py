@@ -21,6 +21,7 @@ from .base import (
     create_colocated_worker_cls,
     create_colocated_worker_cls_fused,
 )
+from .instance_naming import InstanceNameBuilder, build_vllm_server_prefix, build_weight_transfer_socket
 
 __all__ = [
     "RayClassWithInitArgs",
@@ -30,4 +31,7 @@ __all__ = [
     "ResourcePoolManager",
     "create_colocated_worker_cls",
     "create_colocated_worker_cls_fused",
+    "InstanceNameBuilder",
+    "build_vllm_server_prefix",
+    "build_weight_transfer_socket",
 ]

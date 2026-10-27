@@ -49,6 +49,11 @@ defaults:
   # self config override anything above
   - _self_
 
+# Optional identifier used to isolate Ray and weight-transfer resources when
+# multiple independent VERL trainers share one Ray cluster.
+instance:
+  id: null
+
 # config for actor, rollout and reference model
 actor_rollout_ref:
 

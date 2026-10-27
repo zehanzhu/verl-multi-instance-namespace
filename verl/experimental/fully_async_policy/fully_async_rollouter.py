@@ -789,7 +789,13 @@ class FullyAsyncRollouter(SeparateRayPPOTrainer):
             resource_pool_spec["teacher_pool"] = teacher_pool
             mapping[Role.TeacherModel] = "teacher_pool"
 
-            resource_pool_manager = ResourcePoolManager(resource_pool_spec=resource_pool_spec, mapping=mapping)
+            from verl.single_controller.ray.instance_naming import InstanceNameBuilder, get_instance_id
+
+            resource_pool_manager = ResourcePoolManager(
+                resource_pool_spec=resource_pool_spec,
+                mapping=mapping,
+                instance_name_builder=InstanceNameBuilder(get_instance_id(self.config)),
+            )
             resource_pool_manager.create_resource_pool()
             teacher_resource_pool = resource_pool_manager.get_resource_pool(Role.TeacherModel)
 

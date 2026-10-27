@@ -19,12 +19,13 @@ import os
 import socket
 
 import ray
-from omegaconf import OmegaConf
+from omegaconf import OmegaConf, open_dict
 
 from verl.trainer.distillation import is_distillation_enabled
 from verl.trainer.ppo.ray_trainer import RayPPOTrainer
 from verl.trainer.ppo.utils import create_rl_dataset, create_rl_sampler, need_critic, need_reference_policy
 from verl.utils.config import validate_config
+from verl.single_controller.ray.instance_naming import InstanceNameBuilder, get_instance_id
 
 
 class BaseTaskRunner:
@@ -67,6 +68,15 @@ class BaseTaskRunner:
     def init_resource_pool_mgr(self, config):
         """Initialize resource pool manager."""
 
+        instance_id = get_instance_id(config)
+        with open_dict(config.actor_rollout_ref.rollout):
+            config.actor_rollout_ref.rollout.instance_id = instance_id
+        reward_model = config.reward.get("reward_model")
+        reward_rollout = reward_model.get("rollout") if reward_model is not None else None
+        if reward_rollout is not None:
+            with open_dict(reward_rollout):
+                reward_rollout.instance_id = instance_id
+
         global_pool_id = "global_pool"
         resource_pool_spec = {
             global_pool_id: [config.trainer.n_gpus_per_node] * config.trainer.nnodes,
@@ -96,7 +106,11 @@ class BaseTaskRunner:
 
         from verl.trainer.ppo.ray_trainer import ResourcePoolManager
 
-        resource_pool_manager = ResourcePoolManager(resource_pool_spec=resource_pool_spec, mapping=self.mapping)
+        resource_pool_manager = ResourcePoolManager(
+            resource_pool_spec=resource_pool_spec,
+            mapping=self.mapping,
+            instance_name_builder=InstanceNameBuilder(get_instance_id(config)),
+        )
         return resource_pool_manager
 
     def add_reward_model_resource_pool(self, config):

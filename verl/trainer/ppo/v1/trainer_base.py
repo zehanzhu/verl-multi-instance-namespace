@@ -46,6 +46,7 @@ from verl.single_controller.ray import (
     ResourcePoolManager,
     create_colocated_worker_cls,
 )
+from verl.single_controller.ray.instance_naming import InstanceNameBuilder, get_instance_id
 from verl.trainer.distillation import is_distillation_enabled
 from verl.trainer.ppo import core_algos
 from verl.trainer.ppo.checkpoint_callback import build_checkpoint_callback
@@ -119,6 +120,15 @@ class PPOTrainer(ABC):
 
     def __init__(self, config: DictConfig):
         self.config = config
+        self.instance_name_builder = InstanceNameBuilder(get_instance_id(config))
+        rollout_config = self.config.actor_rollout_ref.rollout
+        with open_dict(rollout_config):
+            rollout_config.instance_id = self.instance_name_builder.instance_id
+        reward_model = self.config.reward.get("reward_model")
+        reward_rollout = reward_model.get("rollout") if reward_model is not None else None
+        if reward_rollout is not None:
+            with open_dict(reward_rollout):
+                reward_rollout.instance_id = self.instance_name_builder.instance_id
         self.checkpoint_callback = build_checkpoint_callback(config)
         self.use_critic = need_critic(self.config)
         self.use_reference_policy = need_reference_policy(self.config)
@@ -845,7 +855,11 @@ class PPOTrainer(ABC):
             resource_pool_spec["teacher_pool"] = teacher_pool
             self.mapping[Role.TeacherModel] = "teacher_pool"
 
-        self.resource_pool_manager = ResourcePoolManager(resource_pool_spec=resource_pool_spec, mapping=self.mapping)
+        self.resource_pool_manager = ResourcePoolManager(
+            resource_pool_spec=resource_pool_spec,
+            mapping=self.mapping,
+            instance_name_builder=self.instance_name_builder,
+        )
 
     def _load_checkpoint(self):
         self.global_steps = 0
