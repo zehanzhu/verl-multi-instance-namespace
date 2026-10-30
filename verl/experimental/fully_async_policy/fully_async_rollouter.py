@@ -34,6 +34,7 @@ from verl.experimental.fully_async_policy.message_queue import MessageQueueClien
 from verl.experimental.separation.ray_trainer import SeparateRayPPOTrainer
 from verl.protocol import DataProto
 from verl.single_controller.ray import RayResourcePool, RayWorkerGroup, ResourcePoolManager
+from verl.single_controller.ray.instance_naming import InstanceNameBuilder, get_instance_id
 from verl.trainer.ppo.utils import (
     create_rl_dataset,
     create_rl_sampler,
@@ -789,7 +790,11 @@ class FullyAsyncRollouter(SeparateRayPPOTrainer):
             resource_pool_spec["teacher_pool"] = teacher_pool
             mapping[Role.TeacherModel] = "teacher_pool"
 
-            resource_pool_manager = ResourcePoolManager(resource_pool_spec=resource_pool_spec, mapping=mapping)
+            resource_pool_manager = ResourcePoolManager(
+                resource_pool_spec=resource_pool_spec,
+                mapping=mapping,
+                instance_name_builder=InstanceNameBuilder(get_instance_id(self.config)),
+            )
             resource_pool_manager.create_resource_pool()
             teacher_resource_pool = resource_pool_manager.get_resource_pool(Role.TeacherModel)
 
